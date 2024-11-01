@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MEMOMIND Blog{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'darkgreen': '#2d2a1b',
+                        'darkred': '#963e3e',
+                        'softgreen': '#a5a54f',
+                        'background': '#fdf6f0',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-gray-800 font-sans">
+    <header class="bg-darkgreen text-white py-4">
+        {% include "nav.html" %}
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

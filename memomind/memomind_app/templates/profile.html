@@ -1,0 +1,16 @@
+<h1>{{ username }}'s Profile</h1>
+<p>First Name: {{ first_name }}</p>
+<p>Last Name: {{ last_name }}</p>
+<p>Email: {{ email }}</p>
+{% if profile_picture %}
+    <img src="{{ profile_picture }}" alt="Profile Picture">
+{% endif %}
+
+<h2>Your Posts</h2>
+{% for post in posts %}
+    <div class="relative">
+        <h3>{{ post.title }}</h3>
+        <a href="{% url 'post_detail' post.id %}">View Post</a>
+        <a href="{% url 'delete_post' post.id %}" class="absolute top-0 right-0">🗑️</a>
+    </div>
+{% endfor %}

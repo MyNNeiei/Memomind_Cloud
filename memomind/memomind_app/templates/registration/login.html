@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MemoMind</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-[#4A4A25] flex items-center justify-center">
+    <div class="flex flex-col lg:flex-row w-full min-h-screen">
+        <div class="flex-1 bg-[#4A4A25] p-16 text-white flex flex-col justify-center items-center">
+            <div class="text-xl mb-2">Welcome to</div>
+            <h1 class="text-5xl font-serif mb-8">MemoMind</h1>
+            <div class="flex gap-4">
+                <div class="bg-white p-4 pb-12 shadow-lg transform -rotate-6">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5638/5638179.png" alt="Color palette" class="w-52 h-36 object-cover">
+                </div>
+                <div class="bg-white p-4 pb-12 shadow-lg transform rotate-3">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712846.png" alt="Landscape" class="w-52 h-36 object-cover">
+                </div>
+            </div>
+        </div>
+        <div class="flex-1 bg-[#F5F0E8] p-16 flex flex-col justify-center items-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-[#4A4A25] text-4xl font-serif mb-8">Login</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <ul class="text-[#A15555] mb-4 text-sm">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <div class="mb-6">
+                        <label for="id_username" class="block text-[#4A4A25] font-medium mb-2">Username/Email</label>
+                        <input type="text" name="username" id="id_username" placeholder="Username/Email" class="w-full p-4 rounded-full bg-[#E5DDD3] text-lg">
+                        {% if form.username.errors %}
+                            <ul class="text-[#A15555] mt-2 text-sm">
+                                {% for error in form.username.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <div class="mb-6">
+                        <label for="id_password" class="block text-[#4A4A25] font-medium mb-2">Password</label>
+                        <input type="password" name="password" id="id_password" placeholder="Password" class="w-full p-4 rounded-full bg-[#E5DDD3] text-lg">
+                        {% if form.password.errors %}
+                            <ul class="text-[#A15555] mt-2 text-sm">
+                                {% for error in form.password.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="w-full p-4 rounded-full bg-[#A15555] text-white text-lg font-bold mt-4 transition hover:bg-[#8a4747]">Login</button>
+                </form>
+                <div class="flex items-center my-8 text-[#4A4A25]">
+                    <span class="flex-grow border-t border-gray-300"></span>
+                    <span class="px-4">or continue with</span>
+                    <span class="flex-grow border-t border-gray-300"></span>
+                </div>
+                <button class="w-12 h-12 rounded-full border border-gray-300 bg-white flex items-center justify-center mx-auto">
+                    <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google" class="w-6 h-6">
+                </button>
+                <div class="text-center mt-8 text-[#4A4A25]">
+                    doesn't have an account? <a href="{% url 'register' %}" class="text-[#A15555] font-medium">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

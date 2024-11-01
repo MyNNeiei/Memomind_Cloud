@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'memomind_app'
 ]
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,10 +56,15 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'memomind.urls'
 
+# settings.py
+
+import os
+
 TEMPLATES = [
     {
+        'DIRS': [os.path.join(BASE_DIR, 'memomind_app', 'templates')],
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'memomind_app', 'templates')],  # เพิ่มเส้นทางที่ต้องการ
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,6 +76,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'memomind.wsgi.application'
 
@@ -84,7 +94,6 @@ DATABASES = {
         "PORT": "5432",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -126,3 +135,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ใน settings.py
+# ใน settings.py
+LOGIN_URL = '/blog/login/'  # กำหนดให้ตรงกับ URL ที่คุณตั้งไว้ใน urlpatterns
