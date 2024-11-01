@@ -1,0 +1,14 @@
+<h1>{{ post.title }}</h1>
+<img src="{{ post.image.url }}" alt="{{ post.title }}">
+<p>{{ post.description }}</p>
+
+<h2>Comments</h2>
+{% for comment in comments %}
+    <p>{{ comment.author }}: {{ comment.text }}</p>
+{% endfor %}
+
+<form method="post" action="{% url 'post_detail' post.id %}">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">Add Comment</button>
+</form>
