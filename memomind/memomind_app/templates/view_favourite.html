@@ -1,7 +1,18 @@
-<!-- view_favourite.html -->
 {% extends "layout.html" %}
 {% block content %}
-<h1 class="text-6xl text-center font-bold mb-14 text-darkred">My Favourite Posts</h1>
+<h1 class="text-6xl text-center font-bold mb-4 text-darkred">MY FAVOURITE POSTS</h1>
+
+<!-- Categories Section -->
+<div class="flex flex-wrap items-center gap-4 mb-2 p-10 justify-center">
+    <a href="?category=all" class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
+            {% if selected_category == 'all' %}bg-softgreen text-white{% endif %}">All</a>
+    {% for category in categories %}
+    <a href="?category={{ category.name|safe }}" class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
+              {% if selected_category == category.name %}bg-softgreen text-white{% endif %}">
+        {{ category.name|safe }}
+    </a>
+    {% endfor %}
+</div>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="postsGrid">
     {% for post in liked_posts %}
@@ -21,20 +32,20 @@
         </div>
     </div>
     {% endfor %}
-    
 </div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.heart-icon').forEach(function(button) {
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.heart-icon').forEach(function (button) {
             const postId = button.getAttribute('data-post-id');
             const heartIcon = button.querySelector('.heart');
-    
+
             // Check if post is liked and set the heart icon accordingly
             fetch(`/blog/post/${postId}/is_liked/`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.liked) {
-                        heartIcon.innerText = '♥';  
+                        heartIcon.innerText = '♥';
                         heartIcon.classList.add('text-red-600');
                         heartIcon.classList.remove('text-red-500');
                     } else {
@@ -43,35 +54,35 @@
                         heartIcon.classList.remove('text-red-600');
                     }
                 });
-    
-            button.addEventListener('click', function() {
+
+            button.addEventListener('click', function () {
                 // Toggle heart appearance and send like/unlike request
                 if (heartIcon.innerText === '♡') {
                     heartIcon.innerText = '♥';
                     heartIcon.classList.add('text-red-600');
                     heartIcon.classList.remove('text-red-500');
-    
+
                     fetch(`/blog/post/${postId}/like/`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRFToken': '{{ csrf_token }}' 
+                            'X-CSRFToken': '{{ csrf_token }}'
                         }
                     });
                 } else {
                     heartIcon.innerText = '♡';
                     heartIcon.classList.remove('text-red-600');
                     heartIcon.classList.add('text-red-500');
-    
+
                     fetch(`/blog/post/${postId}/like/`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRFToken': '{{ csrf_token }}' 
+                            'X-CSRFToken': '{{ csrf_token }}'
                         }
                     });
                 }
             });
         });
     });
-    </script>
-    
+</script>
+
 {% endblock %}

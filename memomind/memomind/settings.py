@@ -89,8 +89,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "memomind",
         "USER": "postgres",
-        "PASSWORD": "password_111",
-        "HOST": "memomind-1.ct2e6m0c66d7.us-east-1.rds.amazonaws.com",
+        "PASSWORD": "password",
+        "HOST": "localhost",
         "PORT": "5432",
     }
 }

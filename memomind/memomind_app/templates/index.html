@@ -7,14 +7,16 @@
         + NEW POST
     </a>
     <div class="flex flex-wrap gap-2" id="categories">
-        <!-- ปุ่มสำหรับแสดงโพสต์ทั้งหมด -->
+        <!-- Button for showing all posts with highlight when no category is selected -->
         <a href="?category=all"
-            class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl">All</a>
+            class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
+                   {% if selected_category == 'all' %}bg-softgreen text-white{% endif %}">All</a>
         {% for category in categories %}
         <a href="?category={{ category.name|safe }}" 
-        class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl">
-        {{ category.name|safe }}
-    </a>
+            class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
+                   {% if selected_category == category.name %}bg-softgreen text-white{% endif %}">
+            {{ category.name|safe }}
+        </a>
         {% endfor %}
     </div>
 </div>
@@ -31,13 +33,14 @@
                     <span class="text-sm text-gray-600">{{ post.author.username }}</span>
                 </div>
                 <button class="heart-icon" data-post-id="{{ post.id }}">
-                    <span class="text-red-500 heart text-3xl ">♡</span> <!-- หัวใจเปล่า -->
+                    <span class="text-red-500 heart text-3xl">♡</span> <!-- Empty heart icon -->
                 </button>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.heart-icon').forEach(function (button) {
@@ -55,7 +58,7 @@
 
             button.addEventListener('click', function () {
                 if (heartIcon.innerText === '♡') {
-                    heartIcon.innerText = '♥';  //
+                    heartIcon.innerText = '♥';
                     heartIcon.classList.add('text-red-600');
                     heartIcon.classList.remove('text-red-500');
 
@@ -70,7 +73,6 @@
                     heartIcon.classList.remove('text-red-600');
                     heartIcon.classList.add('text-red-500');
 
-
                     fetch(`/blog/post/${postId}/like/`, {
                         method: 'POST',
                         headers: {
@@ -81,6 +83,5 @@
             });
         });
     });
-
 </script>
 {% endblock %}
