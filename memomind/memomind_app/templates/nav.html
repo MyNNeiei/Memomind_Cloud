@@ -14,7 +14,6 @@
         </button>
         {{user.username}}
         </a>    
-            <a href="{% url 'logout' %}"><box-icon name='log-out' color="white"></box-icon></a>
     {% else %}
         <a href="{% url 'login'%}" class="text-xl hover:text-[#a5a54f]">LOGIN</a>
     {% endif %}
