@@ -44,18 +44,14 @@ class LoginFormView(View):
 class RegisterFormView(View):
     def get(self, request):
         form = RegisterForm()
-        return render(request, "login/register_form.html", {"form": form})
+        return render(request, "registration/register.html", {"form": form})
     def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])
-            user.save()
-            login(request, user)
-            return redirect('login_form')
-        # If forms are invalid, re-render the form with errors
-        print(form.errors)
-        return render(request, 'login/register_form.html', {"form": form})
+            user = form.save()
+            login(request, user)  # Log the user in after registration
+            return redirect('home')  # Redirect to home page after successful registration
+        return render(request, "registration/register.html", {"form": form})
 
 class Logout(View):
     def get(self, request):
