@@ -12,7 +12,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from .models import BlogPost, Category
-
+from django.shortcuts import redirect
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import BlogPostForm
 
 class HomeView(View):
     def get(self, request):
