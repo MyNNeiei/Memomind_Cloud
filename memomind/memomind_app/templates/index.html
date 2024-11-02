@@ -1,81 +1,86 @@
+<!-- index.html -->
 {% extends "layout.html" %}
 {% block content %}
-    <div class="flex flex-wrap items-center gap-4 mb-2 p-10">
-        <a href="{% url 'create_post' %}" class="font-bold bg-darkred text-2xl text-white px-8 py-4 hover:bg-opacity-90 transition-colors rounded-xl">
-            + NEW POST
-        </a>
-        <div class="flex flex-wrap gap-2" id="categories">
-            {% for category in categories %}
-                <a href="?category={{ category.name }}" class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2  rounded-lg text-xl">{{ category.name }}</a>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="postsGrid">
-        {% for post in posts %}
-            <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow relative">
-                <img src="{{ post.image.url }}" alt="Post thumbnail" class="w-full h-40 object-cover">
-                <div class="p-4">
-                    <h3 class="text-lg font-medium mb-2 line-clamp-2">{{ post.title }}</h3>
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-6 h-6 rounded-full bg-gray-200"></div>
-                            <span class="text-sm text-gray-600">{{ post.author.username }}</span>
-                        </div>
-                        <button class="heart-icon" data-post-id="{{ post.id }}">
-                            <span class="text-red-500 heart text-3xl ">♡</span> <!-- หัวใจเปล่า -->
-                        </button>
-                    </div>
-                </div>
-            </div>
+<div class="flex flex-wrap items-center gap-4 mb-2 p-10">
+    <a href="{% url 'create_post' %}"
+        class="font-bold bg-darkred text-2xl text-white px-8 py-4 hover:bg-opacity-90 transition-colors rounded-xl">
+        + NEW POST
+    </a>
+    <div class="flex flex-wrap gap-2" id="categories">
+        <!-- ปุ่มสำหรับแสดงโพสต์ทั้งหมด -->
+        <a href="?category=all"
+            class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl">All</a>
+        {% for category in categories %}
+        <a href="?category={{ category.name|safe }}" 
+        class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl">
+        {{ category.name|safe }}
+    </a>
         {% endfor %}
     </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.heart-icon').forEach(function(button) {
-        const postId = button.getAttribute('data-post-id');
-        const heartIcon = button.querySelector('.heart');
+</div>
 
-        // ตรวจสอบสถานะของหัวใจจาก server
-        fetch(`/blog/post/${postId}/is_liked/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.liked) {
-                    heartIcon.innerText = '♥';  // เปลี่ยนเป็นหัวใจที่เติมสี
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="postsGrid">
+    {% for post in posts %}
+    <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow relative">
+        <img src="{{ post.image.url }}" alt="Post thumbnail" class="w-full h-40 object-cover">
+        <div class="p-4">
+            <h3 class="text-lg font-medium mb-2 line-clamp-2">{{ post.title }}</h3>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                    <span class="text-sm text-gray-600">{{ post.author.username }}</span>
+                </div>
+                <button class="heart-icon" data-post-id="{{ post.id }}">
+                    <span class="text-red-500 heart text-3xl ">♡</span> <!-- หัวใจเปล่า -->
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.heart-icon').forEach(function (button) {
+            const postId = button.getAttribute('data-post-id');
+            const heartIcon = button.querySelector('.heart');
+            fetch(`/blog/post/${postId}/is_liked/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        heartIcon.innerText = '♥';
+                        heartIcon.classList.add('text-red-600');
+                        heartIcon.classList.remove('text-red-500');
+                    }
+                });
+
+            button.addEventListener('click', function () {
+                if (heartIcon.innerText === '♡') {
+                    heartIcon.innerText = '♥';  //
                     heartIcon.classList.add('text-red-600');
                     heartIcon.classList.remove('text-red-500');
+
+                    fetch(`/blog/post/${postId}/like/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    });
+                } else {
+                    heartIcon.innerText = '♡';
+                    heartIcon.classList.remove('text-red-600');
+                    heartIcon.classList.add('text-red-500');
+
+
+                    fetch(`/blog/post/${postId}/like/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    });
                 }
             });
-
-        button.addEventListener('click', function() {
-            // ตรวจสอบสถานะของหัวใจ
-            if (heartIcon.innerText === '♡') {
-                heartIcon.innerText = '♥';  // เปลี่ยนเป็นหัวใจที่เติมสี
-                heartIcon.classList.add('text-red-600');
-                heartIcon.classList.remove('text-red-500');
-
-                // ส่งการร้องขอ AJAX เพื่อบันทึกการชอบโพสต์
-                fetch(`/blog/post/${postId}/like/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}' // ส่ง CSRF token
-                    }
-                });
-            } else {
-                heartIcon.innerText = '♡';  // กลับเป็นหัวใจเปล่า
-                heartIcon.classList.remove('text-red-600');
-                heartIcon.classList.add('text-red-500');
-
-                // ส่งการร้องขอ AJAX เพื่อยกเลิกการชอบโพสต์
-                fetch(`/blog/post/${postId}/like/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}' // ส่ง CSRF token
-                    }
-                });
-            }
         });
     });
-});
 
 </script>
 {% endblock %}

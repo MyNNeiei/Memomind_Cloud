@@ -1,3 +1,4 @@
+# views.py
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
@@ -18,13 +19,11 @@ class HomeView(View):
         posts = BlogPost.objects.all()
         categories = Category.objects.all()
         selected_category = request.GET.get('category')
-
-        if selected_category:
+        if selected_category and selected_category != "all":
             posts = posts.filter(categories__name=selected_category)
-
         return render(request, 'index.html', {'posts': posts, 'categories': categories})
 
-# @method_decorator(login_required, name='dispatch')
+
 
 class LoginFormView(View):
     def get(self, request):
@@ -57,6 +56,12 @@ class Logout(View):
     def get(self, request):
         logout(request)
         return redirect('home')
+    
+from django.shortcuts import redirect
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import BlogPostForm
+
 class CreatePostView(LoginRequiredMixin, View):
     def get(self, request):
         form = BlogPostForm()
@@ -68,6 +73,8 @@ class CreatePostView(LoginRequiredMixin, View):
             post = form.save(commit=False)  # ไม่บันทึกโพสต์ทันที
             post.author = request.user  # ตั้งค่าผู้เขียนเป็นผู้ใช้ที่ลงชื่อเข้าใช้
             post.save()  # บันทึกโพสต์
+
+            form.save_m2m()  # บันทึกฟิลด์ ManyToMany (categories) ลงในตารางกลาง
             return redirect('home')
         return render(request, 'create_post.html', {'form': form})
 

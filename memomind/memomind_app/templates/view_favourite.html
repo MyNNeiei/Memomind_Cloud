@@ -1,24 +1,77 @@
+<!-- view_favourite.html -->
 {% extends "layout.html" %}
 {% block content %}
 <h1 class="text-6xl text-center font-bold mb-14 text-darkred">My Favourite Posts</h1>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="postsGrid">
     {% for post in liked_posts %}
-        <div class="bg-white rounded-lg  border shadow-sm overflow-hidden hover:shadow-md transition-shadow relative">
-            <img src="{{ post.image.url }}" alt="Post thumbnail" class="w-full h-40 object-cover">
-            <div class="p-4">
-                <h3 class="text-lg font-medium mb-2 line-clamp-2">{{ post.title }}</h3>
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-6 h-6 rounded-full bg-gray-200"></div>
-                        <span class="text-sm text-gray-600">{{ post.author.username }}</span>
-                    </div>
-                    <button class="heart-icon" data-post-id="{{ post.id }}">
-                        <span class="text-red-600 heart">♥</span>
-                    </button>
+    <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow relative">
+        <img src="{{ post.image.url }}" alt="Post thumbnail" class="w-full h-40 object-cover">
+        <div class="p-4">
+            <h3 class="text-lg font-medium mb-2 line-clamp-2">{{ post.title }}</h3>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                    <span class="text-sm text-gray-600">{{ post.author.username }}</span>
                 </div>
+                <button class="heart-icon" data-post-id="{{ post.id }}">
+                    <span class="text-red-500 heart text-3xl">♥</span> <!-- Show as liked by default in favourites -->
+                </button>
             </div>
         </div>
+    </div>
     {% endfor %}
+    
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.heart-icon').forEach(function(button) {
+            const postId = button.getAttribute('data-post-id');
+            const heartIcon = button.querySelector('.heart');
+    
+            // Check if post is liked and set the heart icon accordingly
+            fetch(`/blog/post/${postId}/is_liked/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        heartIcon.innerText = '♥';  
+                        heartIcon.classList.add('text-red-600');
+                        heartIcon.classList.remove('text-red-500');
+                    } else {
+                        heartIcon.innerText = '♡';
+                        heartIcon.classList.add('text-red-500');
+                        heartIcon.classList.remove('text-red-600');
+                    }
+                });
+    
+            button.addEventListener('click', function() {
+                // Toggle heart appearance and send like/unlike request
+                if (heartIcon.innerText === '♡') {
+                    heartIcon.innerText = '♥';
+                    heartIcon.classList.add('text-red-600');
+                    heartIcon.classList.remove('text-red-500');
+    
+                    fetch(`/blog/post/${postId}/like/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' 
+                        }
+                    });
+                } else {
+                    heartIcon.innerText = '♡';
+                    heartIcon.classList.remove('text-red-600');
+                    heartIcon.classList.add('text-red-500');
+    
+                    fetch(`/blog/post/${postId}/like/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' 
+                        }
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    
 {% endblock %}

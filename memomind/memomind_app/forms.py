@@ -1,3 +1,4 @@
+# forms.py
 from django import forms
 from .models import BlogPost, Comment
 from django.contrib.auth.forms import UserCreationForm
