@@ -32,8 +32,8 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'text': forms.Textarea(attrs={
                 'class': 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50',
-                'rows': 4,
-                'placeholder': 'Add your comment here'
+                'rows': 1,
+                'placeholder': '  Add your comment here'
             }),
         }
 class RegisterForm(UserCreationForm):

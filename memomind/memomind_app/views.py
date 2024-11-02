@@ -21,11 +21,24 @@ class HomeView(View):
     def get(self, request):
         posts = BlogPost.objects.all()
         categories = Category.objects.all()
-        selected_category = request.GET.get('category')
-        if selected_category and selected_category != "all":
-            posts = posts.filter(categories__name=selected_category)
-        return render(request, 'index.html', {'posts': posts, 'categories': categories})
+        selected_category = request.GET.get('category', 'all') 
+        sort_option = request.GET.get('sort')  # Get the sorting option
 
+        # Filter by category if not 'all'
+        if selected_category != "all":
+            posts = posts.filter(categories__name=selected_category)
+
+        # Apply sorting
+        if sort_option == 'newest':
+            posts = posts.order_by('-created_at')  # Assuming 'created_at' is the field for post creation date
+        elif sort_option == 'oldest':
+            posts = posts.order_by('created_at')
+
+        return render(request, 'index.html', {
+            'posts': posts,
+            'categories': categories,
+            'selected_category': selected_category
+        })
 
 
 class LoginFormView(View):
@@ -59,6 +72,7 @@ class Logout(View):
     def get(self, request):
         logout(request)
         return redirect('home')
+    
 
 class CreatePostView(LoginRequiredMixin, View):
     def get(self, request):
@@ -68,11 +82,10 @@ class CreatePostView(LoginRequiredMixin, View):
     def post(self, request):
         form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
-            post = form.save(commit=False)  # ไม่บันทึกโพสต์ทันที
-            post.author = request.user  # ตั้งค่าผู้เขียนเป็นผู้ใช้ที่ลงชื่อเข้าใช้
-            post.save()  # บันทึกโพสต์
-
-            form.save_m2m()  # บันทึกฟิลด์ ManyToMany (categories) ลงในตารางกลาง
+            post = form.save(commit=False)
+            post.author = request.user 
+            post.save()  
+            form.save_m2m() 
             return redirect('home')
         return render(request, 'create_post.html', {'form': form})
 
@@ -101,7 +114,7 @@ class ProfileView(View):
     def get(self, request):
         user = request.user
         liked_posts = user.liked_posts.all()
-        posts = BlogPost.objects.filter(author=user)  # โพสต์ทั้งหมดของผู้ใช้
+        posts = BlogPost.objects.filter(author=user)  
 
         return render(request, 'profile.html', {
             'liked_posts': liked_posts,
@@ -113,27 +126,41 @@ class ProfileView(View):
             'posts': posts
         })
         
-
 class FavouriteView(LoginRequiredMixin, View):
     def get(self, request):
-        liked_posts = request.user.liked_posts.all()  # ดึงโพสต์ที่ผู้ใช้ชอบ
-        return render(request, 'view_favourite.html', {'liked_posts': liked_posts})
+        liked_posts = request.user.liked_posts.all()
+        categories = Category.objects.all()
 
-    def post(self, request, pk):
-        post = get_object_or_404(BlogPost, pk=pk)
-        if request.user in post.likes.all():
-            post.likes.remove(request.user)  # ลบโพสต์ออกจากรายการชอบ
-        else:
-            post.likes.add(request.user)  # เพิ่มโพสต์ลงในรายการชอบ
-        return JsonResponse({'status': 'success'})
+        # Set the default category to 'all'
+        selected_category = request.GET.get('category', 'all')  # Default to 'all'
+        
+        # Filter liked posts if a specific category is selected (not 'all')
+        if selected_category != "all":
+            liked_posts = liked_posts.filter(categories__name=selected_category)
+
+        # Get the sorting option
+        sort_option = request.GET.get('sort')  # Get the sorting option
+
+        # Apply sorting
+        if sort_option == 'newest':
+            liked_posts = liked_posts.order_by('-created_at')  # Assuming 'created_at' is the field for post creation date
+        elif sort_option == 'oldest':
+            liked_posts = liked_posts.order_by('created_at')
+
+        return render(request, 'view_favourite.html', {
+            'liked_posts': liked_posts,
+            'categories': categories,
+            'selected_category': selected_category  # Pass the selected category to the template
+        })
+
 
 class LikePostView(LoginRequiredMixin, View):
     def post(self, request, pk):
         post = get_object_or_404(BlogPost, pk=pk)
         if request.user in post.likes.all():
-            post.likes.remove(request.user)  # ยกเลิกการถูกใจโพสต์
+            post.likes.remove(request.user)
         else:
-            post.likes.add(request.user)  # ถูกใจโพสต์
+            post.likes.add(request.user)
         return JsonResponse({'status': 'success'})
     
 class DeletePostView(LoginRequiredMixin, View):
