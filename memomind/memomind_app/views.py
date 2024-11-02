@@ -22,16 +22,23 @@ class HomeView(View):
         posts = BlogPost.objects.all()
         categories = Category.objects.all()
         selected_category = request.GET.get('category', 'all') 
+        sort_option = request.GET.get('sort')  # Get the sorting option
+
+        # Filter by category if not 'all'
         if selected_category != "all":
             posts = posts.filter(categories__name=selected_category)
-        
+
+        # Apply sorting
+        if sort_option == 'newest':
+            posts = posts.order_by('-created_at')  # Assuming 'created_at' is the field for post creation date
+        elif sort_option == 'oldest':
+            posts = posts.order_by('created_at')
+
         return render(request, 'index.html', {
             'posts': posts,
             'categories': categories,
             'selected_category': selected_category
         })
-
-
 
 
 class LoginFormView(View):
@@ -131,19 +138,21 @@ class FavouriteView(LoginRequiredMixin, View):
         if selected_category != "all":
             liked_posts = liked_posts.filter(categories__name=selected_category)
 
+        # Get the sorting option
+        sort_option = request.GET.get('sort')  # Get the sorting option
+
+        # Apply sorting
+        if sort_option == 'newest':
+            liked_posts = liked_posts.order_by('-created_at')  # Assuming 'created_at' is the field for post creation date
+        elif sort_option == 'oldest':
+            liked_posts = liked_posts.order_by('created_at')
+
         return render(request, 'view_favourite.html', {
             'liked_posts': liked_posts,
             'categories': categories,
             'selected_category': selected_category  # Pass the selected category to the template
         })
 
-    def post(self, request, pk):
-        post = get_object_or_404(BlogPost, pk=pk)
-        if request.user in post.likes.all():
-            post.likes.remove(request.user) 
-        else:
-            post.likes.add(request.user)
-        return JsonResponse({'status': 'success'})
 
 class LikePostView(LoginRequiredMixin, View):
     def post(self, request, pk):

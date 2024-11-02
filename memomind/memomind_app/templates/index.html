@@ -1,4 +1,3 @@
-<!-- index.html -->
 {% extends "layout.html" %}
 {% block content %}
 <div class="flex flex-wrap items-center gap-4 mb-2 p-10">
@@ -6,16 +5,25 @@
         class="font-bold bg-darkred text-2xl text-white px-8 py-4 hover:bg-opacity-90 transition-colors rounded-xl">
         + NEW POST
     </a>
-    <div class="flex flex-wrap gap-2" id="categories">
-        <!-- Button for showing all posts with highlight when no category is selected -->
-        <a href="?category=all"
-            class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
-                   {% if selected_category == 'all' %}bg-softgreen text-white{% endif %}">All</a>
+    <div class="flex items-center gap-2 relative" id="categories">
+        <button id="sortButton"
+            class="flex items-center justify-center w-10 h-10 rounded-full bg-darkgreen text-white hover:bg-opacity-90 transition-colors">
+            <i class="fa-solid fa-sliders text-white"></i>
+        </button>
+        <a href="?category=all" class="border border-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
+                    {% if selected_category == 'all' %}bg-softgreen text-white{% else %}text-softgreen{% endif %}">
+            All
+        </a>
+        <div id="sortOptions" class="absolute hidden bg-white border border-gray-200 rounded shadow-lg z-10 mt-2">
+            <a href="?category={{ selected_category }}&sort=newest" class="block px-4 py-2 hover:bg-softgreen hover:text-white">Newest Post
+                First</a>
+            <a href="?category={{ selected_category }}&sort=oldest" class="block px-4 py-2 hover:bg-softgreen hover:text-white">Oldest Post
+                First</a>
+        </div>
         {% for category in categories %}
-        <a href="?category={{ category.name|safe }}" 
-            class="border border-softgreen text-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
-                   {% if selected_category == category.name %}bg-softgreen text-white{% endif %}">
-            {{ category.name|safe }}
+        <a href="?category={{ category.name|urlencode }}" class="border border-softgreen hover:bg-softgreen hover:text-white transition-colors px-5 py-2 rounded-lg text-xl 
+                    {% if selected_category == category.name %}bg-softgreen text-white{% else %}text-softgreen{% endif %}">
+            {{ category.name }}
         </a>
         {% endfor %}
     </div>
@@ -24,19 +32,21 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="postsGrid">
     {% for post in posts %}
     <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow relative">
-        <img src="{{ post.image.url }}" alt="Post thumbnail" class="w-full h-40 object-cover">
-        <div class="p-4">
-            <h3 class="text-lg font-medium mb-2 line-clamp-2">{{ post.title }}</h3>
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 rounded-full bg-gray-200"></div>
-                    <span class="text-sm text-gray-600">{{ post.author.username }}</span>
+        <a href="{% url 'post_detail' post.id %}">
+            <img src="{{ post.image.url }}" alt="Post thumbnail" class="w-full h-40 object-cover">
+            <div class="p-4">
+                <h3 class="text-lg font-medium mb-2 line-clamp-2">{{ post.title }}</h3>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                        <span class="text-sm text-gray-600">{{ post.author.username }}</span>
+                    </div>
+                    <button class="heart-icon" data-post-id="{{ post.id }}">
+                        <span class="text-red-500 heart text-3xl">♡</span> <!-- Empty heart icon -->
+                    </button>
                 </div>
-                <button class="heart-icon" data-post-id="{{ post.id }}">
-                    <span class="text-red-500 heart text-3xl">♡</span> <!-- Empty heart icon -->
-                </button>
             </div>
-        </div>
+        </a>
     </div>
     {% endfor %}
 </div>
@@ -56,31 +66,39 @@
                     }
                 });
 
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
                 if (heartIcon.innerText === '♡') {
                     heartIcon.innerText = '♥';
                     heartIcon.classList.add('text-red-600');
                     heartIcon.classList.remove('text-red-500');
-
-                    fetch(`/blog/post/${postId}/like/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        }
-                    });
                 } else {
                     heartIcon.innerText = '♡';
                     heartIcon.classList.remove('text-red-600');
                     heartIcon.classList.add('text-red-500');
-
-                    fetch(`/blog/post/${postId}/like/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        }
-                    });
                 }
+
+                fetch(`/blog/post/${postId}/like/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
             });
+        });
+
+        // Toggle sort options display
+        const sortButton = document.getElementById('sortButton');
+        const sortOptions = document.getElementById('sortOptions');
+
+        sortButton.addEventListener('click', function (event) {
+            sortOptions.classList.toggle('hidden');
+            event.stopPropagation();
+        });
+
+        // Hide sort options when clicking outside
+        document.addEventListener('click', function () {
+            sortOptions.classList.add('hidden');
         });
     });
 </script>

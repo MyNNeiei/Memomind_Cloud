@@ -10,7 +10,7 @@
         <div class="flex justify-between">
             <!-- left -->
             <div class=" w-2/5 p-4">
-                <h1 class="text-4xl font-bold text-darkred mb-4"><i>CREATE NEW BLOG</i></h1>
+                <h1 class="text-5xl font-bold text-darkred mb-4 text-center border-[5px]"><i>CREATE NEW BLOG</i></h1>
                 
                 <!-- Image Upload with Preview -->
                 <div>
@@ -33,7 +33,7 @@
             </div>
 
             <!-- right -->
-            <div class="w-3/5 p-10">
+            <div class="w-3/5 px-24">
                 <div>
                     <label for="{{ form.title.id_for_label }}" class="block text-2xl font-semibold text-dark-brown mb-3">Title</label>
                     {{ form.title }}
@@ -42,12 +42,13 @@
                     <label for="{{ form.description.id_for_label }}" class="block text-2xl font-semibold text-dark-brown mb-3">Description</label>
                     {{ form.description }}
                 </div>
+                <button type="submit" class="flex mx-auto mt-10 bg-darkred text-white font-bold px-12 py-4 rounded-3xl hover:bg-opacity-90 transition-all text-2xl">
+                    POST
+                </button>
             </div>
         </div>
 
-        <button type="submit" class="flex mx-auto mt-10 bg-darkred text-white font-bold px-12 py-4 rounded-3xl hover:bg-opacity-90 transition-all text-2xl">
-            POST
-        </button>
+        
     </form>
 </div>
 
